@@ -1,0 +1,171 @@
+{
+  "info": {
+    "name": "School Management API",
+    "_postman_id": "school-mgmt-collection-v1",
+    "description": "Complete Postman collection for the School Management API.\n\n**Base URL:** `http://localhost:3000`\n\n**APIs:**\n- `POST /addSchool` — Add a new school\n- `GET /listSchools` — List schools sorted by proximity\n\nUpdate the `base_url` variable to your deployed URL for live testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/",
+          "host": ["{{base_url}}"],
+          "path": [""]
+        },
+        "description": "Check if the API server is running."
+      },
+      "response": [
+        {
+          "name": "Success",
+          "status": "OK",
+          "code": 200,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": true,\n  \"message\": \"School Management API is running 🏫\",\n  \"version\": \"1.0.0\",\n  \"endpoints\": {\n    \"addSchool\":   { \"method\": \"POST\", \"path\": \"/addSchool\" },\n    \"listSchools\": { \"method\": \"GET\",  \"path\": \"/listSchools?latitude=<lat>&longitude=<lng>\" }\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Add School — Success",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Delhi Public School\",\n  \"address\": \"Sector 45, Gurugram, Haryana\",\n  \"latitude\": 28.4595,\n  \"longitude\": 77.0266\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/addSchool",
+          "host": ["{{base_url}}"],
+          "path": ["addSchool"]
+        },
+        "description": "Adds a new school to the database.\n\n**Validation rules:**\n- `name`: required, 2–255 chars\n- `address`: required, 5–500 chars\n- `latitude`: required, float, -90 to 90\n- `longitude`: required, float, -180 to 180"
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "status": "Created",
+          "code": 201,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": true,\n  \"message\": \"School added successfully.\",\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Delhi Public School\",\n    \"address\": \"Sector 45, Gurugram, Haryana\",\n    \"latitude\": 28.4595,\n    \"longitude\": 77.0266\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Add School — Validation Error",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\",\n  \"address\": \"Some Address\",\n  \"latitude\": 999,\n  \"longitude\": 77.0266\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/addSchool",
+          "host": ["{{base_url}}"],
+          "path": ["addSchool"]
+        },
+        "description": "Demonstrates validation errors when required fields are missing or invalid."
+      },
+      "response": [
+        {
+          "name": "400 Bad Request",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"errors\": [\n    { \"field\": \"name\",     \"message\": \"School name is required\" },\n    { \"field\": \"latitude\", \"message\": \"Latitude must be a number between -90 and 90\" }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Add School — Duplicate",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Delhi Public School\",\n  \"address\": \"Sector 45, Gurugram, Haryana\",\n  \"latitude\": 28.4595,\n  \"longitude\": 77.0266\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/addSchool",
+          "host": ["{{base_url}}"],
+          "path": ["addSchool"]
+        },
+        "description": "Sending the same school twice returns a 409 Conflict."
+      },
+      "response": [
+        {
+          "name": "409 Conflict",
+          "status": "Conflict",
+          "code": 409,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": false,\n  \"message\": \"A school with the same name and address already exists.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "List Schools — Sorted by Proximity",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/listSchools?latitude=18.5204&longitude=73.8567",
+          "host": ["{{base_url}}"],
+          "path": ["listSchools"],
+          "query": [
+            { "key": "latitude",  "value": "18.5204", "description": "User's latitude (Pune)" },
+            { "key": "longitude", "value": "73.8567", "description": "User's longitude (Pune)" }
+          ]
+        },
+        "description": "Returns all schools sorted by distance (km) from the user's location using the Haversine formula.\n\n**Required query params:**\n- `latitude`: float, -90 to 90\n- `longitude`: float, -180 to 180"
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": true,\n  \"message\": \"5 school(s) found, sorted by proximity.\",\n  \"user_location\": { \"latitude\": 18.5204, \"longitude\": 73.8567 },\n  \"data\": [\n    {\n      \"id\": 5,\n      \"name\": \"Symbiosis School\",\n      \"address\": \"Senapati Bapat Road, Pune, MH\",\n      \"latitude\": 18.5204,\n      \"longitude\": 73.8567,\n      \"created_at\": \"2024-01-01T00:00:00.000Z\",\n      \"distance_km\": 0\n    },\n    {\n      \"id\": 3,\n      \"name\": \"The Cathedral School\",\n      \"address\": \"Fort Area, Mumbai, Maharashtra\",\n      \"latitude\": 18.9322,\n      \"longitude\": 72.8338,\n      \"created_at\": \"2024-01-01T00:00:00.000Z\",\n      \"distance_km\": 118.34\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "List Schools — Missing Params",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/listSchools",
+          "host": ["{{base_url}}"],
+          "path": ["listSchools"]
+        },
+        "description": "Calling listSchools without query parameters returns a validation error."
+      },
+      "response": [
+        {
+          "name": "400 Bad Request",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"errors\": [\n    { \"field\": \"latitude\",  \"message\": \"Latitude query parameter is required\" },\n    { \"field\": \"longitude\", \"message\": \"Longitude query parameter is required\" }\n  ]\n}"
+        }
+      ]
+    }
+  ]
+}
