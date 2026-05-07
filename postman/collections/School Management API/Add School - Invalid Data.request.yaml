@@ -1,0 +1,35 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/addSchool'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "",
+      "address": "abc",
+      "latitude": 120,
+      "longitude": 190
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 400', function () {
+        pm.response.to.have.status(400);
+      });
+
+      const json = pm.response.json();
+      const fields = (json.errors || []).map(function (error) { return error.field; });
+
+      pm.test('Validation failed for invalid addSchool input', function () {
+        pm.expect(json.success).to.eql(false);
+        pm.expect(json.message).to.eql('Validation failed');
+        pm.expect(fields).to.include('name');
+        pm.expect(fields).to.include('address');
+        pm.expect(fields).to.include('latitude');
+        pm.expect(fields).to.include('longitude');
+      });

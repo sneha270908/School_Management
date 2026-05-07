@@ -1,0 +1,30 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/addSchool'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Postman Public School Alpha",
+      "address": "12 Testing Lane, QA City",
+      "latitude": 28.6139,
+      "longitude": 77.2090
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 409 for duplicate school', function () {
+        pm.response.to.have.status(409);
+      });
+
+      const json = pm.response.json();
+
+      pm.test('Duplicate school is rejected', function () {
+        pm.expect(json.success).to.eql(false);
+        pm.expect(json.message).to.eql('A school with the same name and address already exists.');
+      });

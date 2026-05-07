@@ -1,0 +1,21 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/listSchools'
+order: 7000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 400 when query params are missing', function () {
+        pm.response.to.have.status(400);
+      });
+
+      const json = pm.response.json();
+      const fields = (json.errors || []).map(function (error) { return error.field; });
+
+      pm.test('Missing latitude and longitude are reported', function () {
+        pm.expect(json.success).to.eql(false);
+        pm.expect(json.message).to.eql('Validation failed');
+        pm.expect(fields).to.include('latitude');
+        pm.expect(fields).to.include('longitude');
+      });

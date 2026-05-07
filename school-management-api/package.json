@@ -1,11 +1,14 @@
 {
   "name": "school-management-api",
   "version": "1.0.0",
-  "description": "Node.js REST APIs for School Management with proximity-based sorting",
+  "description": "School Management API",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "express": "^4.18.2",

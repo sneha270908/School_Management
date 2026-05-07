@@ -1,0 +1,26 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/listSchools'
+order: 8000
+queryParams:
+  - key: latitude
+    value: '200'
+  - key: longitude
+    value: 'hello'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 400 for invalid query params', function () {
+        pm.response.to.have.status(400);
+      });
+
+      const json = pm.response.json();
+      const messages = (json.errors || []).map(function (error) { return error.message; });
+
+      pm.test('Invalid latitude and longitude are rejected', function () {
+        pm.expect(json.success).to.eql(false);
+        pm.expect(json.message).to.eql('Validation failed');
+        pm.expect(messages).to.include('Latitude must be a number between -90 and 90');
+        pm.expect(messages).to.include('Longitude must be a number between -180 and 180');
+      });

@@ -1,0 +1,32 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/addSchool'
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Polar Boundary School",
+      "address": "1 Arctic Circle Road, North Base",
+      "latitude": -90,
+      "longitude": 180
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 201 for boundary coordinates', function () {
+        pm.response.to.have.status(201);
+      });
+
+      const json = pm.response.json();
+
+      pm.test('Boundary coordinate payload is accepted', function () {
+        pm.expect(json.success).to.eql(true);
+        pm.expect(json.data.name).to.eql('Polar Boundary School');
+        pm.expect(json.data.latitude).to.eql(-90);
+        pm.expect(json.data.longitude).to.eql(180);
+      });

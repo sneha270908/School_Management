@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: 410bbc2b-aa2f-496d-87a8-e32c7bdf3f24
+
+localResources:
+  collections:
+    - ..\school-management-api\postman\SchoolManagement.postman_collection.json

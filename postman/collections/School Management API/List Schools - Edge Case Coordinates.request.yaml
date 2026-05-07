@@ -1,0 +1,25 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/listSchools'
+order: 9000
+queryParams:
+  - key: latitude
+    value: '-90'
+  - key: longitude
+    value: '180'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200 for boundary coordinates', function () {
+        pm.response.to.have.status(200);
+      });
+
+      const json = pm.response.json();
+
+      pm.test('Boundary query coordinates are accepted', function () {
+        pm.expect(json.success).to.eql(true);
+        pm.expect(json.user_location.latitude).to.eql(-90);
+        pm.expect(json.user_location.longitude).to.eql(180);
+        pm.expect(json.data).to.be.an('array');
+      });

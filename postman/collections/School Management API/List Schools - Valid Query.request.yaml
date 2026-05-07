@@ -1,0 +1,37 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/listSchools'
+order: 6000
+queryParams:
+  - key: latitude
+    value: '28.6139'
+    description: 'Reference latitude'
+  - key: longitude
+    value: '77.2090'
+    description: 'Reference longitude'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      const json = pm.response.json();
+
+      pm.test('List schools returns expected structure', function () {
+        pm.expect(json.success).to.eql(true);
+        pm.expect(json.user_location.latitude).to.eql(28.6139);
+        pm.expect(json.user_location.longitude).to.eql(77.209);
+        pm.expect(json.data).to.be.an('array');
+      });
+
+      pm.test('Schools are sorted by distance when multiple records exist', function () {
+        if (json.data.length > 1) {
+          for (let index = 1; index < json.data.length; index++) {
+            pm.expect(json.data[index].distance_km).to.be.at.least(json.data[index - 1].distance_km);
+          }
+        } else {
+          pm.expect(json.data.length).to.be.at.least(0);
+        }
+      });

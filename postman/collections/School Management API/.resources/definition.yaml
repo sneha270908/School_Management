@@ -1,0 +1,6 @@
+$kind: collection
+name: 'School Management API'
+description: 'Collection to test POST /addSchool and GET /listSchools on localhost.'
+variables:
+  - key: 'baseUrl'
+    value: 'http://localhost:3000'

@@ -1,0 +1,38 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/addSchool'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Postman Public School Alpha",
+      "address": "12 Testing Lane, QA City",
+      "latitude": 28.6139,
+      "longitude": 77.2090
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 201', function () {
+        pm.response.to.have.status(201);
+      });
+
+      const json = pm.response.json();
+
+      pm.test('School is added successfully', function () {
+        pm.expect(json.success).to.eql(true);
+        pm.expect(json.message).to.eql('School added successfully.');
+        pm.expect(json.data).to.have.property('id');
+        pm.expect(json.data.name).to.eql('Postman Public School Alpha');
+        pm.expect(json.data.address).to.eql('12 Testing Lane, QA City');
+        pm.expect(json.data.latitude).to.eql(28.6139);
+        pm.expect(json.data.longitude).to.eql(77.209);
+      });
+
+      pm.collectionVariables.set('validSchoolName', json.data.name);
+      pm.collectionVariables.set('validSchoolAddress', json.data.address);
